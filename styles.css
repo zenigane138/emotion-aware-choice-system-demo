@@ -1,0 +1,182 @@
+:root {
+  --progress: 0;
+  --strain: 0;
+  --breath: 0;
+  --ink: rgba(235, 232, 224, .92);
+  --muted: rgba(235, 232, 224, .52);
+  --line: rgba(235, 232, 224, .14);
+  --paper: #11100e;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+  background: #0d0c0b;
+  color: var(--ink);
+  user-select: none;
+  cursor: default;
+}
+
+.stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-width: 960px;
+  min-height: 540px;
+  display: grid;
+  place-items: end start;
+  padding: 0 0 9vh 9vw;
+  background:
+    radial-gradient(circle at 61% 42%, rgba(105, 96, 83, .21), transparent 34%),
+    linear-gradient(115deg, #0b0b0a 0%, #15130f 47%, #090908 100%);
+  filter: contrast(calc(1 + var(--strain) * .055)) brightness(calc(1 - var(--strain) * .07));
+  transform: scale(calc(1 + var(--strain) * .012));
+  transition: filter 220ms ease, transform 260ms ease;
+}
+
+.scene {
+  width: min(1040px, 70vw);
+  padding: 0 0 2vh;
+  transform: translate3d(calc(var(--strain) * -2px), calc(var(--breath) * 3px), 0);
+}
+
+.kicker {
+  min-height: 1.6em;
+  margin: 0 0 20px;
+  color: rgba(235, 232, 224, .35);
+  font-size: 16px;
+  letter-spacing: .2em;
+}
+
+.text {
+  min-height: 190px;
+  max-width: 880px;
+  font-size: clamp(25px, 2.15vw, 42px);
+  line-height: 1.85;
+  letter-spacing: .065em;
+  text-shadow: 0 0 calc(var(--strain) * 10px) rgba(235, 232, 224, .18);
+}
+
+.text .speaker {
+  display: block;
+  margin-bottom: .4em;
+  font-size: .55em;
+  color: var(--muted);
+  letter-spacing: .18em;
+}
+
+.hint {
+  min-height: 24px;
+  margin: 18px 0 14px;
+  color: rgba(235, 232, 224, .33);
+  font-size: 13px;
+  letter-spacing: .13em;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(680px, 54vw);
+}
+
+.choice {
+  position: relative;
+  width: 100%;
+  min-height: 58px;
+  padding: 17px 26px 16px;
+  border: 1px solid rgba(235, 232, 224, .11);
+  border-radius: 2px;
+  color: rgba(235, 232, 224, .84);
+  background: rgba(255, 255, 255, .018);
+  font: inherit;
+  font-size: 18px;
+  letter-spacing: .08em;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+  transform: translate3d(calc(var(--local-strain, 0) * 2px), 0, 0);
+  transition: opacity 260ms ease, border-color 260ms ease, background 260ms ease, transform 80ms linear;
+}
+
+.choice::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--choice-progress, 0) * 100%);
+  background: linear-gradient(90deg, rgba(235,232,224,.10), rgba(235,232,224,.015));
+  opacity: .99;
+  transition: width 80ms linear;
+}
+
+.choice span {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  transform: translate3d(calc(var(--local-strain, 0) * -.7px), calc(var(--local-strain, 0) * .45px), 0);
+}
+
+.choice:hover { border-color: rgba(235, 232, 224, .22); }
+.choice.is-holding {
+  background: rgba(255, 0, 0, .094);
+  border-color: rgba(235, 232, 224, .23);
+}
+.choice.is-new {
+  animation: arrive 900ms ease both;
+}
+.choice.is-fading {
+  opacity: .25;
+}
+
+.grain {
+  pointer-events: none;
+  position: absolute;
+  inset: -8%;
+  opacity: calc(.09 + var(--strain) * .16);
+  background-image:
+    repeating-radial-gradient(circle at 17% 23%, rgba(255,255,255,.11) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 6px);
+  background-size: 240px 240px, 11px 11px;
+  mix-blend-mode: screen;
+  animation: grain 480ms steps(3) infinite;
+}
+
+.vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center,
+    transparent calc(43% - var(--strain) * 9%),
+    rgba(0,0,0,.24) calc(68% - var(--strain) * 12%),
+    rgba(0,0,0,calc(.48 + var(--strain) * .22)) 100%);
+  opacity: calc(.62 + var(--strain) * .22);
+  transition: opacity 180ms linear;
+}
+
+.stage::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.018);
+  opacity: calc(var(--breath) * .12 + var(--strain) * .05);
+}
+
+@keyframes grain {
+  0% { transform: translate3d(0, 0, 0); }
+  33% { transform: translate3d(-1.7%, 1.2%, 0); }
+  66% { transform: translate3d(1.1%, -.8%, 0); }
+  100% { transform: translate3d(.3%, 1.6%, 0); }
+}
+
+@keyframes arrive {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.fade-in { animation: fadeIn 700ms ease both; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
